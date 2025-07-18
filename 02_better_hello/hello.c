@@ -16,5 +16,5 @@ module_init(my_init);
 module_exit(my_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Johannes 4Linux");
+MODULE_AUTHOR("Cuong Le Duc <cuong.leduc@hcmut.edu.vn>");
 MODULE_DESCRIPTION("A simple Hello World Linux Kernel Module");
