@@ -1,4 +1,4 @@
-# 2.hello-v2-better
+# 02_better_hello
 
 An improved hello World Linux Kernel Module.
 
