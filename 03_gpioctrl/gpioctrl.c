@@ -1,57 +1,75 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/gpio/consumer.h>
+#include <linux/timer.h>
 
-static struct gpio_desc *led, *button;
+#define IO_LED       23
+#define IO_OFFSET    32
+#define MAX_COUNT    70
+#define TIME_DELAY   1000  // milliseconds
 
-#define IO_LED 21
-#define IO_BUTTON 20
+static struct gpio_desc *led_gpio;
+static struct timer_list blink_timer;
+static int blink_count = 0;
+static bool led_state = false;
 
-#define IO_OFFSET 0
+static void timer_callback(struct timer_list *t)
+{
+	if (blink_count >= MAX_COUNT) {
+		gpiod_set_value(led_gpio, 0);
+		pr_info("gpioctrl: Stopped after %d cycles\n", blink_count);
+		return;
+	}
+
+	led_state = !led_state;
+	gpiod_set_value(led_gpio, led_state);
+
+	if (led_state) {
+		blink_count++;
+		pr_info("gpioctrl: LED ON (Cycle %d/%d)\n", blink_count, MAX_COUNT);
+	}
+
+	mod_timer(&blink_timer, jiffies + msecs_to_jiffies(TIME_DELAY));
+}
 
 static int __init my_init(void)
 {
-	int status;
+	int ret;
 
-	led = gpio_to_desc(IO_LED + IO_OFFSET);
-	if (!led) {
-		printk("gpioctrl - Error getting pin %d\n", IO_LED);
+	led_gpio = gpio_to_desc(IO_LED + IO_OFFSET);
+	if (!led_gpio) {
+		pr_err("gpioctrl: Failed to get GPIO descriptor for pin %d\n", IO_LED);
 		return -ENODEV;
 	}
 
-	button = gpio_to_desc(IO_BUTTON + IO_OFFSET);
-	if (!button) {
-		printk("gpioctrl - Error getting pin %d\n", IO_BUTTON);
-		return -ENODEV;
+	ret = gpiod_direction_output(led_gpio, 0);
+	if (ret) {
+		pr_err("gpioctrl: Failed to set GPIO %d as output\n", IO_LED);
+		return ret;
 	}
 
-	status = gpiod_direction_output(led, 0);
-	if (status) {
-		printk("gpioctrl - Error setting pin %d to output\n", IO_LED);
-		return status;
+	timer_setup(&blink_timer, timer_callback, 0);
+
+	ret = mod_timer(&blink_timer, jiffies + msecs_to_jiffies(TIME_DELAY));
+	if (ret) {
+		pr_err("gpioctrl: Failed to start timer\n");
+		return ret;
 	}
 
-	status = gpiod_direction_input(button);
-	if (status) {
-		printk("gpioctrl - Error setting pin %d to input\n", IO_BUTTON);
-		return status;
-	}
-
-	gpiod_set_value(led, 1);
-
-	printk("gpioctrl - Button is %spressed\n", gpiod_get_value(button) ? "" : "not ");
-
+	pr_info("gpioctrl: Module initialized successfully\n");
 	return 0;
 }
 
 static void __exit my_exit(void)
 {
-	gpiod_set_value(led, 0);
+	del_timer_sync(&blink_timer);
+	gpiod_set_value(led_gpio, 0);
+	pr_info("gpioctrl: Module unloaded\n");
 }
 
 module_init(my_init);
 module_exit(my_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Johannes 4Linux");
-MODULE_DESCRIPTION("An example for using GPIOs without the device tree");
+MODULE_AUTHOR("Cuong LeDuc");
+MODULE_DESCRIPTION("An example of using GPIOs without the Device Tree");
