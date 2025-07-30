@@ -6,7 +6,10 @@
 #define IO_LED       23
 #define IO_OFFSET    32
 #define MAX_COUNT    70
-#define TIME_DELAY   1000  // milliseconds
+#define TIME_DELAY   1000  
+
+/* To calculate the pin number of GPIO, refer to:
+ https://wiki.luckfox.com/Luckfox-Pico/Luckfox-Pico-RV1106/Luckfox-Pico-Pro-Max/Luckfox-pinout/Luckfox-Pico-GPIO */
 
 static struct gpio_desc *led_gpio;
 static struct timer_list blink_timer;
@@ -71,5 +74,5 @@ module_init(my_init);
 module_exit(my_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Cuong LeDuc");
+MODULE_AUTHOR("Cuong Le Duc <cuong.le@ologn.tech>");
 MODULE_DESCRIPTION("An example of using GPIOs without the Device Tree");
