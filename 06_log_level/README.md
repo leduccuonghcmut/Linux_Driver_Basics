@@ -1,8 +1,6 @@
 # 06_kernel_logging
 
-Here you can see how different log levels can be used with printk and how they are formated at the kernel log.
-
-This example can be compiled and run on a Raspberry Pi or a normal x86 computer.
+This README shows how to use printk with different log levels in a Linux kernel module for the RV1106 SoC (e.g., Luckfox Pico or JetKVM). The module is cross-compiled on an WSL host and tested on an RV1106 device.
 
 You can find the information also in the [Linux Kernel documentation](https://www.kernel.org/doc/html/latest/core-api/printk-basics.html)
 
@@ -35,12 +33,6 @@ The following log levels are available:
 
 ## Filtering for log levels
 
-You can filter for a specific loglevel with the -l option of dmesg:
-
 ~~~
-# Only show Debug messages
-sudo dmesg -l 7
-
-# Only show critical messages
-sudo dmesg -l 2
+echo 6 > /proc/sys/kernel/printk
 ~~~

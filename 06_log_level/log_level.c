@@ -1,25 +1,37 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * log_level.c - Example Linux kernel module to demonstrate printk log levels.
+ *
+ */
+
 #include <linux/module.h>
 #include <linux/init.h>
 
-static int __init my_init(void)
+static int __init log_level_init(void)
 {
-	printk(KERN_INFO "log_level - This is an info\n");
-	printk(KERN_WARNING "log_level - This is an information\n");
-	printk(KERN_ALERT "log_level - This is an alert\n");
-	printk(KERN_DEBUG "log_level - Debug: %d\n", 42);
+pr_emerg("RV1106: Emergency message\n");
+    pr_alert("RV1106: Alert message\n");
+    pr_crit("RV1106: Critical message\n");
+    pr_err("RV1106: Error message\n");
+    pr_warn("RV1106: Warning message\n");
+    pr_notice("RV1106: Notice message\n");
+    pr_info("RV1106: Info message\n");
+    pr_debug("RV1106: Debug message\n");
+    pr_cont("RV1106: Continuation message\n");
+    return 0;
+
 	return 0;
 }
 
-static void __exit my_exit(void)
+static void __exit log_level_exit(void)
 {
-	pr_emerg("log_level - Module is unloaded!\n");
-	pr_err("log_level - Error\n");
-	pr_info("log_level - the last info...\n");
+	pr_info("RV1106: Unloading logging module\n");
 }
 
-module_init(my_init);
-module_exit(my_exit);
+module_init(log_level_init);
+module_exit(log_level_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Johannes 4Linux");
-MODULE_DESCRIPTION("A simple Hello World Linux Kernel Module");
+MODULE_AUTHOR("Cuong Le Duc <cuong.le@ologn.tech>");
+MODULE_DESCRIPTION("A demo Linux kernel module showing printk log levels");
+
