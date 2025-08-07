@@ -1,10 +1,30 @@
-obj-m += hello_cdev.o
+# Cross-compiler settings
+CROSS_COMPILE ?= /home/cuongleduc/buildroot-rv1106/output/host/bin/arm-rockchip830-linux-uclibcgnueabihf-
+ARCH ?= arm
 
-all: cdev_test
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+# Kernel source directory - update this to your kernel source path
+KERNEL_SRC ?= /home/cuongleduc/buildroot-rv1106/output/build/linux-24ab4f26ef4270d678595aee738f15a21c7338d3
+
+# Module name
+MODULE_NAME = hello_cdev
+
+# Source files for kernel module
+obj-m += $(MODULE_NAME).o
+
+# User-space test program
+TEST_PROG = cdev_test
+
+# Default target
+all: $(TEST_PROG)
+	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) modules
+
+# Build user-space test program
+$(TEST_PROG): test.c
+	$(CROSS_COMPILE)gcc $< -o $@
+
+# Clean target
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-	rm -f cdev_test
+	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) clean
+	rm -f $(TEST_PROG)
 
-cdev_test: test.c
-	gcc $< -o $@
+.PHONY: all clean

@@ -1,8 +1,6 @@
 # 06_hello_cdev
 
-A demonstration for how to implement the open and release function of a Character Device Files in a Linux Driver or Kernel Module
-
-This example can be compiled and run on a Raspberry Pi or a normal x86 computer.
+This is a Linux kernel module named hello_cdev that registers a character device. When the device file is opened, it logs the major and minor numbers, file position, mode, and flags. When the device file is closed, it logs a closure message. This module serves as a basic example of a character device driver for educational purposes. This example can be compiled and run on a Luckfox Pico Max/mini RV1106.
 
 ## Explaining the code
 
@@ -27,35 +25,4 @@ Both functions return 0 on success, else a negative error code. The arguments ar
 The major and minor device number can be read out the `inode`with the function `imajor` and `iminor`.
 
 The file operations are bundled in the `fops` struct. 
-
-## Testing the code
-
-We need a small userspace application to test the driver. You can pass the file to open to the program. Compile it with gcc:
-
-
-~~~
-gcc test.c -o cdev_test
-~~~
-
-Load the Kernel Module, check for the device number and create some device files:
-
-~~~
-sudo insmod hello_cdev.ko
-sudo mknod /dev/hello0 c 236 0
-sudo mknod /dev/hello11 c 236 11
-~~~
-
-Now, lets run the test application:
-
-~~~
-sudo ./cdev_test /dev/hello0
-~~~
-
-You should see the prints in the kernel logs. The Minor Device Number should be zero. The `f_mode` and `f_flags` differ on every open, as we are using different flags.
-
-When using the test application with the other device file, the Minor Device Number should be 11 instead of 0.
-
-~~~
-sudo ./cdev_test /dev/hello11
-~~~
 
